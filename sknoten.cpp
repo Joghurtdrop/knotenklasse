@@ -1,13 +1,4 @@
-#include <iostream>
-#include <string>
-#include <algorithm>
-
-class Knoten
-{
-public:
-int kzahl;
-std::string kfolge;
-std::string kname;
+#include "sknoten.h"
 
 /*  Knoten()
   {
@@ -16,13 +7,13 @@ std::string kname;
     kname = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   }
 */
-  Knoten( const char *folge = "" )
+  Knoten::Knoten( const char *folge )
   { 
     SetKnoten (folge);
   }
 
  
-  void SetKnoten( const char *folge )
+  void Knoten::SetKnoten( const char *folge )
   {
     kfolge = folge;
     kzahl = kfolge.length()/2;
@@ -45,7 +36,7 @@ std::string kname;
   }
   
   // get next unused name for a knot
-  std::string getunused()
+  std::string Knoten::getunused()
   {
     sort(kname.begin(),kname.end());
     std::string unused;
@@ -55,18 +46,19 @@ std::string kname;
   }
   
   // check if name is allready in use
-  bool checkused(char s)
+  bool Knoten::checkused(char s)
   {
     return (kname.find(s)==std::string::npos);
   }
   
   // check if string exist in knot 
-  bool checkinfolge(std::string s)
+  bool Knoten::checkinfolge(std::string s)
   {
     return (kfolge.find(s)!=std::string::npos);
   }
 
-  void setunused(std::string s)
+  // set string to unused
+  void Knoten::setunused(std::string s)
   {
     for(int i = 1; i<=s.length(); ++i)
     {
@@ -78,7 +70,8 @@ std::string kname;
     sort(kname.begin(),kname.end());
   }
 
-  void setused(std::string s)
+  // set string to used
+  void Knoten::setused(std::string s)
   {  
     for(int j = 1; j<=s.length(); ++j)
     { 
@@ -91,8 +84,7 @@ std::string kname;
   }
 
 
-
-  void doR1(std::string strecke )
+  void Knoten::doR1(std::string strecke )
   {
     if (strecke.length()!=2)
     {
@@ -112,7 +104,7 @@ std::string kname;
     setused(temps);
   }
 
-  void undoR1( std::string strecke )
+  void Knoten::undoR1( std::string strecke )
   {
     if(strecke.length()!=2)
     {
@@ -137,7 +129,7 @@ std::string kname;
 
   }
 
-  void doR2(std::string s,std::string k)
+  void Knoten::doR2(std::string s,std::string k, bool r)
   {
     if(s.length() !=2 & k.length() != 2)
     {
@@ -153,13 +145,29 @@ std::string kname;
 
     std::string neueins = getunused();
     setused(neueins);
-    std::string neuzwei = getunused();
+    std::string neu (neueins) ;
+    std::string neuzwei  = getunused();
     setused(neuzwei);
+    neu.append(neuzwei);
+    sort(neu.begin(),neu.end());
+
+    if (!r)
+    {
+      kfolge.insert(kfolge.find(s)+1,neu,0,2);
+      kfolge.insert(kfolge.find(k)+1,neu,2,2);
+    } 
+    else if (r)
+    {
+      kfolge.insert(kfolge.find(s)+1,neu,0,2);
+      std::string rneu = std::string(neu.rbegin(),neu.rend());
+      kfolge.insert(kfolge.find(r)+1,rneu,0,2);
+    }
+    else std::cout << "Fehler!" << std::endl;
 
     
   }
 
-  void undoR2(std::string s)
+  void Knoten::undoR2(std::string s)
   {
     sort(s.begin(),s.end());
     std::string k = std::string(s.rbegin(),s.rend());
@@ -201,7 +209,7 @@ std::string kname;
 
   }
 
-  void doR3(std::string zweipunkte, std::string punkt)
+  void Knoten::doR3(std::string zweipunkte, std::string punkt)
   {
     sort(zweipunkte.begin(),zweipunkte.end());
     sort(punkt.begin(),punkt.end());
@@ -313,92 +321,17 @@ std::string kname;
   }
 
 
-  void p()
+  void Knoten::p()
   {
   std::cout << kfolge << std::endl;
   }
 
-  void Print()
+  void Knoten::Print()
   {
    std::cout << "Anzahl an Knoten: " << kzahl << std::endl;
    std::cout << "Knotenfolge: " << kfolge << std::endl;
    std::cout << "noch moegliche Knoten: " << kname << std::endl;
   }
-};
 
-int main()
-{
-using namespace std;
-int input = 1;
-int iptemp = 0;
-string temp;
-string temp2;
-Knoten Kleeblatt;
-while(input != 0){
-cout  << "Was wollen Sie tun:\n" 
-      << "(1) Knoten eingeben \n"
-      << "(2) R1 Zug \n"
-      << "(3) R2 Zug \n"
-      << "(4) R3 Zug \n"
-      << "(5) Infos zum Knoten anzeigen \n"
-      << "(0) exit" << endl;
 
-cin >> input;
-if(input == 1)
-{
-  cout << "Bitte geben Sie ihren Knoten ein: ";
-  cin >> temp;
-  const char * c = temp.c_str();
-  Kleeblatt = c;
-}
-else if(input == 2)
-{
-  cout << "(1) hinzufuegen oder (2) entfernen?";
-  cin >> iptemp; 
-  if(iptemp == 1)
-  {
-  cout << "\nAuf welcher Strecke soll der R1 gemacht werden? (zB Ab)\n";
-  Kleeblatt.p();
-  cin >> temp;
-  Kleeblatt.doR1(temp);
-  }
-  else if(iptemp == 2)
-  {
-  cout << "\nWelcher Strecke soll entfernt werden? (zB Aa)\n";
-  Kleeblatt.p();
-  cin >> temp;
-  Kleeblatt.undoR1(temp);
-  }
-}
-else if(input == 3)
-{
-  cout << "(1) hinzufuegen oder (2) entfernen?";
-  cin >> iptemp;
-  if (iptemp == 1)
-  {
-  cout << "in arbeit!" << endl;
-  }
-  else if(iptemp == 2)
-  {
-  cout << "Bitte die 2 Knoten eingeben.\n";
-  Kleeblatt.p();
-  cin >> temp;
-  Kleeblatt.undoR2(temp);
-  }
-}
-else if(input == 4)
-{
-Kleeblatt.p();
-cout << "Geben Sie zuerst die zu \"ziehende\" Strecke ein: ";
-cin >> temp;
-cout << "Nun den Punkt ueber den gezogen wird: ";
-cin >> temp2;
-Kleeblatt.doR3(temp,temp2);
-}
-else if(input == 5)
- Kleeblatt.Print();
 
-else input = 0;
-}
-
-}
